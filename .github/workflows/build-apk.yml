@@ -16,6 +16,24 @@ jobs:
       - name: Unpack source
         run: unzip -q FaceLabAI_PROPLUS_22_Android_Source.zip -d source
 
+      - name: Enable AndroidX
+        working-directory: source/FaceLabAI_Android_22
+        run: |
+          touch gradle.properties
+          if grep -q '^android.useAndroidX=' gradle.properties; then
+            sed -i 's/^android\.useAndroidX=.*/android.useAndroidX=true/' gradle.properties
+          else
+            echo 'android.useAndroidX=true' >> gradle.properties
+          fi
+
+          if grep -q '^android.enableJetifier=' gradle.properties; then
+            sed -i 's/^android\.enableJetifier=.*/android.enableJetifier=true/' gradle.properties
+          else
+            echo 'android.enableJetifier=true' >> gradle.properties
+          fi
+
+          cat gradle.properties
+
       - name: Java 17
         uses: actions/setup-java@v5
         with:
@@ -25,6 +43,7 @@ jobs:
       - name: Prepare Android SDK
         run: |
           SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+
           if [ ! -x "$SDKMANAGER" ]; then
             SDKMANAGER=$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -n 1)
           fi
