@@ -1,4 +1,4 @@
-name: Build FACE LAB APK
+name: Build FACE LAB 22.3 APK
 
 on:
   push:
@@ -14,46 +14,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Unpack source
-        run: unzip -q FaceLabAI_PROPLUS_22_Android_Source.zip -d source
-
-      - name: Fix AndroidX and BuildConfig
-        working-directory: source/FaceLabAI_Android_22
-        run: |
-          touch gradle.properties
-
-          if grep -q '^android.useAndroidX=' gradle.properties; then
-            sed -i 's/^android\.useAndroidX=.*/android.useAndroidX=true/' gradle.properties
-          else
-            echo 'android.useAndroidX=true' >> gradle.properties
-          fi
-
-          if grep -q '^android.enableJetifier=' gradle.properties; then
-            sed -i 's/^android\.enableJetifier=.*/android.enableJetifier=true/' gradle.properties
-          else
-            echo 'android.enableJetifier=true' >> gradle.properties
-          fi
-
-          python3 - <<'PY'
-          from pathlib import Path
-
-          p = Path("app/build.gradle")
-          text = p.read_text()
-
-          if "buildFeatures" not in text:
-              text = text.replace(
-                  "compileSdk 35",
-                  """compileSdk 35
-
-              buildFeatures {
-                  buildConfig true
-              }"""
-              )
-
-          p.write_text(text)
-          PY
-
-          cat gradle.properties
-          cat app/build.gradle
+        run: unzip -q FaceLabAI_PROPLUS_22_3_OFFICIAL_BUILD_SOURCE.zip -d source
 
       - name: Java 17
         uses: actions/setup-java@v5
@@ -69,8 +30,6 @@ jobs:
             SDKMANAGER=$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -n 1)
           fi
 
-          echo "Using sdkmanager: $SDKMANAGER"
-
           yes | "$SDKMANAGER" --licenses >/dev/null || true
 
           "$SDKMANAGER" \
@@ -83,16 +42,18 @@ jobs:
         with:
           gradle-version: '8.10.2'
 
-      - name: Build installable APK
-        working-directory: source/FaceLabAI_Android_22
+      - name: Build APK
+        working-directory: source/FaceLabAI_Android_22_3
         run: gradle :app:assembleDebug --no-daemon
 
       - name: Rename APK
-        run: cp source/FaceLabAI_Android_22/app/build/outputs/apk/debug/app-debug.apk FACE-LAB-PROPLUS-22-TEST.apk
+        run: |
+          cp source/FaceLabAI_Android_22_3/app/build/outputs/apk/debug/app-debug.apk \
+          FACE-LAB-PROPLUS-22.3.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: FACE-LAB-PROPLUS-22-ANDROID-TEST
-          path: FACE-LAB-PROPLUS-22-TEST.apk
+          name: FACE-LAB-PROPLUS-22.3
+          path: FACE-LAB-PROPLUS-22.3.apk
           if-no-files-found: error
