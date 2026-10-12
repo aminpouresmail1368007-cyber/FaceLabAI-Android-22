@@ -1,4 +1,4 @@
-name: Build FACE LAB 22.4 APK
+name: Build FACE LAB 22.4.1 APK
 
 on:
   push:
@@ -14,7 +14,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Unpack source
-        run: unzip -q FaceLabAI_PROPLUS_22_4_OFFICIAL_BUILD_SOURCE.zip -d source
+        run: unzip -q FaceLabAI_PROPLUS_22_4_1_OFFICIAL_BUILD_SOURCE.zip -d source
 
       - name: Java 17
         uses: actions/setup-java@v5
@@ -43,17 +43,17 @@ jobs:
           gradle-version: '8.10.2'
 
       - name: Build APK
-        working-directory: source/FaceLabAI_Android_22_4
+        working-directory: source/FaceLabAI_Android_22_4_1
         run: gradle :app:assembleDebug --no-daemon
 
       - name: Rename APK
         run: |
-          cp source/FaceLabAI_Android_22_4/app/build/outputs/apk/debug/app-debug.apk \
-          FACE-LAB-PROPLUS-22.4.apk
+          cp source/FaceLabAI_Android_22_4_1/app/build/outputs/apk/debug/app-debug.apk \
+          FACE-LAB-PROPLUS-22.4.1.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: FACE-LAB-PROPLUS-22.4
-          path: FACE-LAB-PROPLUS-22.4.apk
+          name: FACE-LAB-PROPLUS-22.4.1
+          path: FACE-LAB-PROPLUS-22.4.1.apk
           if-no-files-found: error
